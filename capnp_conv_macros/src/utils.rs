@@ -1,9 +1,9 @@
 use std::fmt::Display;
 
 use proc_macro2::{Ident, Span};
-use quote::{format_ident, IdentFragment};
+use quote::{IdentFragment, format_ident};
 use syn::{
-    token::PathSep, AttrStyle, Attribute, Error, GenericArgument, Path, PathArguments, Result, Type,
+    AttrStyle, Attribute, Error, GenericArgument, Path, PathArguments, Result, Type, token::PathSep,
 };
 
 use crate::models::FieldType;
@@ -14,7 +14,7 @@ pub fn error<T>(span: Span, message: impl Display) -> Result<T> {
 
 pub fn is_capnp_attr(attribute: &Attribute) -> bool {
     attribute.style == AttrStyle::Outer
-        && attribute.path().segments.last().unwrap().ident == "capnp_conv"
+        && matches!(attribute.path().segments.last(), Some(segment) if segment.ident == "capnp_conv")
 }
 
 pub fn to_ident(fragment: impl IdentFragment) -> Ident {
@@ -28,11 +28,12 @@ pub fn to_capnp_generic(generic: &Ident) -> Ident {
 /// for a type of `Option::<bool>`, will return `"Option"`, the `bool` subtype
 pub fn try_peel_type(ty: &Type) -> Option<(&Ident, &Type)> {
     if let Type::Path(type_path) = ty {
-        let last_segment = type_path.path.segments.last().unwrap();
-        if let PathArguments::AngleBracketed(arguments) = &last_segment.arguments {
-            if arguments.args.len() == 1 {
-                if let GenericArgument::Type(sub_type) = arguments.args.first().unwrap() {
-                    return Some((&last_segment.ident, sub_type));
+        if let Some(last_segment) = type_path.path.segments.last() {
+            if let PathArguments::AngleBracketed(arguments) = &last_segment.arguments {
+                if arguments.args.len() == 1 {
+                    if let Some(GenericArgument::Type(sub_type)) = arguments.args.first() {
+                        return Some((&last_segment.ident, sub_type));
+                    }
                 }
             }
         }
@@ -51,7 +52,7 @@ pub fn as_turbofish(path: &Path) -> Path {
     path
 }
 
-pub fn is_ptr_type(field_type: &FieldType) -> bool {
+pub const fn is_ptr_type(field_type: &FieldType) -> bool {
     matches!(
         field_type,
         FieldType::Data(_)

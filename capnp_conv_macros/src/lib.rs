@@ -1,3 +1,13 @@
+#![deny(
+    clippy::nursery,
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::string_slice,
+    clippy::pedantic
+)]
+#![forbid(unsafe_code)]
+
 mod generators;
 mod models;
 mod parsers;
