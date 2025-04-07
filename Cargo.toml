@@ -3,7 +3,10 @@ resolver = "2"
 members = ["capnp_conv", "capnp_conv_macros", "capnp_conv_tests", "example"]
 
 [workspace.package]
-authors = ["Aik Kalantarian <aik.kalantarian@gmail.com>", "Debanjan Basu <debanjanbasu2006@gmail.com>"]
+authors = [
+    "Aik Kalantarian <aik.kalantarian@gmail.com>",
+    "Debanjan Basu <debanjanbasu2006@gmail.com>",
+]
 version = "0.3.2"
 edition = "2024"
 license = "MIT"

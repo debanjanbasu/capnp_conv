@@ -24,7 +24,7 @@ pub fn capnp_conv(attr_stream: TokenStream, input_stream: TokenStream) -> TokenS
     let capnp_struct = parse_macro_input!(attr_stream as Path);
     let mut input = parse_macro_input!(input_stream as DeriveInput);
 
-    match ItemInfo::parse_input(&input) {
+    let result = match ItemInfo::parse_input(&input) {
         Ok(item_info) => {
             let output = item_info.generate_impls(&capnp_struct);
             remove_capnp_field_attrs(&mut input);
@@ -34,8 +34,8 @@ pub fn capnp_conv(attr_stream: TokenStream, input_stream: TokenStream) -> TokenS
             }
         }
         Err(error) => error.to_compile_error(),
-    }
-    .into()
+    };
+    result.into()
 }
 
 fn remove_capnp_field_attrs(input: &mut DeriveInput) {
